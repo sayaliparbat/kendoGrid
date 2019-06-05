@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="TrainingModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="EmployeeId" />
+          </Key>
+          <Property Name="EmployeeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="EmployeeName" Type="varchar" MaxLength="20" />
+          <Property Name="EmployeeAddress" Type="varchar" MaxLength="20" />
+          <Property Name="EmployeeDesignation" Type="varchar" MaxLength="20" />
+          <Property Name="FacilityId" Type="int" />
+        </EntityType>
+        <EntityType Name="Facilities">
+          <Key>
+            <PropertyRef Name="FacilityId" />
+          </Key>
+          <Property Name="FacilityId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FacilityName" Type="varchar" MaxLength="20" />
+          <Property Name="PharmacyId" Type="int" />
+        </EntityType>
+        <EntityType Name="Pharmacy">
+          <Key>
+            <PropertyRef Name="PharmacyId" />
+          </Key>
+          <Property Name="PharmacyId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PharmacyName" Type="varchar" MaxLength="20" />
+        </EntityType>
+        <Association Name="FK_Employee_Facilities">
+          <End Role="Facilities" Type="Self.Facilities" Multiplicity="0..1" />
+          <End Role="Employee" Type="Self.Employee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Facilities">
+              <PropertyRef Name="FacilityId" />
+            </Principal>
+            <Dependent Role="Employee">
+              <PropertyRef Name="FacilityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Facilities_Pharmacy">
+          <End Role="Pharmacy" Type="Self.Pharmacy" Multiplicity="0..1" />
+          <End Role="Facilities" Type="Self.Facilities" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pharmacy">
+              <PropertyRef Name="PharmacyId" />
+            </Principal>
+            <Dependent Role="Facilities">
+              <PropertyRef Name="PharmacyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TrainingModelStoreContainer">
+          <EntitySet Name="Employee" EntityType="Self.Employee" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Facilities" EntityType="Self.Facilities" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Pharmacy" EntityType="Self.Pharmacy" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Employee_Facilities" Association="Self.FK_Employee_Facilities">
+            <End Role="Facilities" EntitySet="Facilities" />
+            <End Role="Employee" EntitySet="Employee" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Facilities_Pharmacy" Association="Self.FK_Facilities_Pharmacy">
+            <End Role="Pharmacy" EntitySet="Pharmacy" />
+            <End Role="Facilities" EntitySet="Facilities" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="TrainingModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Facility">
+          <Key>
+            <PropertyRef Name="FacilityId" />
+          </Key>
+          <Property Name="FacilityId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FacilityName" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PharmacyId" Type="Int32" />
+          <NavigationProperty Name="Pharmacy" Relationship="Self.FK_Facilities_Pharmacy" FromRole="Facilities" ToRole="Pharmacy" />
+          <NavigationProperty Name="Employees" Relationship="TrainingModel.FK_Employee_Facilities" FromRole="Facility" ToRole="Employee" />
+        </EntityType>
+        <EntityType Name="Pharmacy">
+          <Key>
+            <PropertyRef Name="PharmacyId" />
+          </Key>
+          <Property Name="PharmacyId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PharmacyName" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Facilities" Relationship="Self.FK_Facilities_Pharmacy" FromRole="Pharmacy" ToRole="Facilities" />
+        </EntityType>
+        <Association Name="FK_Facilities_Pharmacy">
+          <End Role="Pharmacy" Type="Self.Pharmacy" Multiplicity="0..1" />
+          <End Role="Facilities" Type="Self.Facility" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pharmacy">
+              <PropertyRef Name="PharmacyId" />
+            </Principal>
+            <Dependent Role="Facilities">
+              <PropertyRef Name="PharmacyId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TrainingEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Facilities" EntityType="Self.Facility" />
+          <EntitySet Name="Pharmacies" EntityType="Self.Pharmacy" />
+          <AssociationSet Name="FK_Facilities_Pharmacy" Association="Self.FK_Facilities_Pharmacy">
+            <End Role="Pharmacy" EntitySet="Pharmacies" />
+            <End Role="Facilities" EntitySet="Facilities" />
+          </AssociationSet>
+          <EntitySet Name="Employees" EntityType="TrainingModel.Employee" />
+          <AssociationSet Name="FK_Employee_Facilities" Association="TrainingModel.FK_Employee_Facilities">
+            <End Role="Facility" EntitySet="Facilities" />
+            <End Role="Employee" EntitySet="Employees" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Employee">
+          <Key>
+            <PropertyRef Name="EmployeeId" />
+          </Key>
+          <Property Name="EmployeeId" Type="Int32" Nullable="false" />
+          <Property Name="EmployeeName" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="EmployeeAddress" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="EmployeeDesignation" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="FacilityId" Type="Int32" />
+          <NavigationProperty Name="Facility" Relationship="TrainingModel.FK_Employee_Facilities" FromRole="Employee" ToRole="Facility" />
+        </EntityType>
+        <Association Name="FK_Employee_Facilities">
+          <End Type="TrainingModel.Facility" Role="Facility" Multiplicity="0..1" />
+          <End Type="TrainingModel.Employee" Role="Employee" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Facility">
+              <PropertyRef Name="FacilityId" />
+            </Principal>
+            <Dependent Role="Employee">
+              <PropertyRef Name="FacilityId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="TrainingModelStoreContainer" CdmEntityContainer="TrainingEntities">
+          <EntitySetMapping Name="Facilities">
+            <EntityTypeMapping TypeName="TrainingModel.Facility">
+              <MappingFragment StoreEntitySet="Facilities">
+                <ScalarProperty Name="FacilityId" ColumnName="FacilityId" />
+                <ScalarProperty Name="FacilityName" ColumnName="FacilityName" />
+                <ScalarProperty Name="PharmacyId" ColumnName="PharmacyId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Pharmacies">
+            <EntityTypeMapping TypeName="TrainingModel.Pharmacy">
+              <MappingFragment StoreEntitySet="Pharmacy">
+                <ScalarProperty Name="PharmacyId" ColumnName="PharmacyId" />
+                <ScalarProperty Name="PharmacyName" ColumnName="PharmacyName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Employees">
+            <EntityTypeMapping TypeName="TrainingModel.Employee">
+              <MappingFragment StoreEntitySet="Employee">
+                <ScalarProperty Name="FacilityId" ColumnName="FacilityId" />
+                <ScalarProperty Name="EmployeeDesignation" ColumnName="EmployeeDesignation" />
+                <ScalarProperty Name="EmployeeAddress" ColumnName="EmployeeAddress" />
+                <ScalarProperty Name="EmployeeName" ColumnName="EmployeeName" />
+                <ScalarProperty Name="EmployeeId" ColumnName="EmployeeId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="true" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

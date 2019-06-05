@@ -1,0 +1,131 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "Index";
+
+}
+
+<h2>Index</h2>
+<h4>Pharmacies:</h4>
+
+
+
+@(Html.Kendo().DropDownList()
+                    .Name("pharmacy")
+                    .HtmlAttributes(new { style = "width:30%" })
+                    .OptionLabel("Select Pharmacy...")
+                    .DataTextField("Pharmacy_Name")//value
+                    .DataValueField("Pharmacy_id")
+                    .DataSource(source =>
+                    {
+                        source.Read(read =>
+            {
+                read.Action("GetPharmacyList", "Data");//action method & Controller
+});
+
+                    })
+)
+
+<h4 style="margin-top: 2em;">Facilities:</h4>
+@(Html.Kendo().DropDownList()
+                .Name("facility")
+                .HtmlAttributes(new { style = "width:30%" })
+                .OptionLabel("Select Facility...")
+                .DataTextField("Facility_Name")
+                .DataValueField("Facility_ID")
+                .Events(e => e.Select("onSelectFacilityValue"))
+                .DataSource(source =>
+                {
+                    source.Read(read =>
+        {
+                    read.Action("GetFacilityList", "Data")
+        .Data("filterFacility");
+                })
+        .ServerFiltering(true);
+                })
+                .Enable(false)
+                .AutoBind(false)
+                .CascadeFrom("pharmacy")
+    )
+
+
+<script>
+    function bindddlMultiSkill() {
+        $("#ddlMultiSkill").kendoDropDownList({
+            name: "skill",
+            dataTextField: "Facility_Name",
+            dataValueField: "Facility_ID",
+            dataSource: SkillData,
+            filter: "contains",
+            template: "<input type='checkbox' id='chk_skill_#=data.Facility_ID #' class='clsSkillInner' value='#=data.Facility_ID #' name='skill' />" + " " + "${ data.Facility_Name }",
+            close: onClose,
+            dataBound: onSkillBound
+        }).data("kendoDropDownList");
+    }
+</script>
+
+
+
+<script>
+    function filterFacility() {
+        return {
+            pharmacy: $("#pharmacy").val()
+        };
+    }
+
+    
+
+
+    function onSelectFacilityValue(e) {
+        var dataItem = this.dataItem(e.item.index());
+        var facilityId = dataItem.Facility_ID;
+
+        alert(facilityId)
+        $.ajax({
+            url: '/Data/GetEmployeeList',
+            type: 'POST',
+            dataType: 'json',
+            data: { facilityId: facilityId },
+            success: function (result) {
+                alert(JSON.stringify(result));
+                var grid = $('#Employees').getKendoGrid();
+                grid.dataSource.data(result);
+                grid.refresh();
+            },
+            error: function () {
+                alert('error');
+            }
+        });
+
+    }
+</script>
+<div id="grid">
+
+
+    @(Html.Kendo().Grid<KendoApp.Models.Employee>()
+                                        .Name("Employees")
+                                        .ToolBar(tb => tb.Create())
+                                        .Pageable()
+                                        .AutoBind(true)
+                                        .DataSource(dataSource => dataSource.Ajax()
+                                                .Model(model => model.Id(c => c.EmployeeId))
+                                                .Read("GetEmployeeList", "Data")
+                                                .Update("UpdateEmployee", "Data")
+                                                .Create("InsertEmployee", "Data")
+                                                .Destroy("DeleteEmployee", "Data")
+                                        )
+                                        .Columns(cols =>
+                                        {
+                                            cols.Bound(c => c.EmployeeName).Width(300);
+                                            cols.Bound(c => c.EmployeeAddress);
+                                            cols.Bound(c => c.EmployeeDesignation);
+                                            cols.Command(cmd =>
+                                {
+                                    cmd.Edit();
+                                    cmd.Destroy();
+                                });
+                                        })
+    )
+
+</div>
+

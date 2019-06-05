@@ -1,0 +1,159 @@
+﻿
+@{
+                /**/
+
+                ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+<h3>MultiSelect</h3>
+<h4>Pharmacies:</h4>
+
+
+
+@(Html.Kendo().DropDownList()
+                                .Name("pharmacy")
+                                .Events(c=>c.Select("onselect"))
+                                .HtmlAttributes(new { style = "width:30%" })
+                                .OptionLabel("Select Pharmacy...")
+                                .DataTextField("Pharmacy_Name")//value
+                                .DataValueField("Pharmacy_id")
+
+
+                                .DataSource(source =>
+                                {
+                                    source.Read(read =>
+                                    {
+                                        read.Action("GetPharmacyList", "Data");//action method & Controller
+                                    });
+                                })
+)
+
+<h4 style="margin-top: 2em;">Facilities:</h4>
+@*@(Html.Kendo().MultiSelect()
+                            .Name("facility")
+                            .HtmlAttributes(new { style = "width:30%" })
+                            .DataTextField("Facility_Name")
+                            .DataValueField("Facility_ID")
+                            .Events(e => e.Select("onSelectFacilityValue"))
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                            {
+                                read.Action("GetFacilityList", "Data")
+                    .Data("filterFacility");
+                            })
+                        .ServerFiltering(true);
+                            })
+                            .Enable(false)
+                            .AutoBind(false)
+
+)*@
+
+
+@(Html.Kendo().MultiSelect()
+              .Name("required")
+                .DataTextField("Facility_Name")
+               .DataValueField("Facility_ID")
+              .Placeholder("Select attendees...")
+              .AutoBind(true)
+              .DataSource(source =>
+                    {
+        source.Read(read =>
+        {
+            read.Action("GetFacilityList", "Sample");//action method & Controller
+        });
+    })
+    
+)
+
+
+
+<script>
+    //function filterFacility() {
+    //    return {
+    //        pharmacy: $("#pharmacy").val()
+    //    };
+    //}
+
+   function onselect(e) {
+       var dataItem = this.dataItem(e.item.index());
+       var PharmacyId = dataItem.Pharmacy_id;
+       
+        alert(PharmacyId)
+        $.ajax({
+            url: '/Sample/GetFacilityList',
+            type: 'POST',
+            dataType: 'json',
+            data: { PharmacyId: PharmacyId },
+            success: function (result)
+            {
+              alert(JSON.stringify(result));
+            },
+            error: function () {
+                alert('error');
+            }
+        });
+
+    }
+
+    function onSelectFacilityValue(e) {
+        var dataItem = this.dataItem(e.item.index());
+        var facilityId = dataItem.Facility_ID;
+
+        alert(facilityId)
+        $.ajax({
+            url: '/Data/GetEmployeeList',
+            type: 'POST',
+            dataType: 'json',
+            data: { facilityId: facilityId },
+            success: function (result) {
+                alert(JSON.stringify(result));
+                var grid = $('#Employees').getKendoGrid();
+                grid.dataSource.data(result);
+                grid.refresh();
+            },
+            error: function () {
+                alert('error');
+            }
+        });
+
+    }
+</script>
+<div id="grid">
+
+
+    @(Html.Kendo().Grid<KendoApp.Models.Employee>()
+                                                                .Name("Employees")
+                                                                .ToolBar(tb => tb.Create())
+                                                                .Pageable()
+                                                                .AutoBind(true)
+                                                                .DataSource(dataSource => dataSource.Ajax()
+                                                                        .Model(model => model.Id(c => c.EmployeeId))
+                                                                        .Read("GetEmployeeList", "Data")
+                                                                        .Update("UpdateEmployee", "Data")
+                                                                        .Create("InsertEmployee", "Data")
+                                                                        .Destroy("DeleteEmployee", "Data")
+                                                                )
+                                                                .Columns(cols =>
+                                                                {
+                                                                    cols.Bound(c => c.EmployeeName).Width(300);
+                                                                    cols.Bound(c => c.EmployeeAddress);
+                                                                    cols.Bound(c => c.EmployeeDesignation);
+                                                                    cols.Command(cmd =>
+                                                        {
+                                                            cmd.Edit();
+                                                            cmd.Destroy();
+                                                        });
+                                                                })
+    )
+
+</div>
+
+
