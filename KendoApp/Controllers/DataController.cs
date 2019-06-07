@@ -36,16 +36,16 @@ namespace KendoApp.Controllers
         }
 
         [HttpPost]
-        public ActionResult GetEmployeeList([DataSourceRequest] DataSourceRequest request,int? facilityId)
+        public ActionResult GetEmployeeList([DataSourceRequest] DataSourceRequest request, int? facilityId)
         {
             TempData["facId"] = facilityId;
             var EmpData = db.Employees.AsQueryable();
             if (facilityId > 0)
             {
                 EmpData = EmpData.Where(s => s.FacilityId == facilityId);
-               
+
             }
-            return Json(EmpData.Select(e => new { EmployeeId = e.EmployeeId, EmployeeName = e.EmployeeName, EmployeeAddress = e.EmployeeAddress, EmployeeDesignation = e.EmployeeDesignation, FacilityId=e.FacilityId}), JsonRequestBehavior.AllowGet);
+            return Json(EmpData.Select(e => new { EmployeeId = e.EmployeeId, EmployeeName = e.EmployeeName, EmployeeAddress = e.EmployeeAddress, EmployeeDesignation = e.EmployeeDesignation, FacilityId = e.FacilityId }), JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult UpdateEmployee([DataSourceRequest] DataSourceRequest request, Employee employee)

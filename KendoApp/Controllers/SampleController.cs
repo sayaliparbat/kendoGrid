@@ -14,8 +14,26 @@ namespace KendoApp.Controllers
     {
         private TrainingEntities db = new TrainingEntities();
         // GET: Sample
+        public ActionResult KendoMulti()
+        {
+            TrainingEntities cotext = new TrainingEntities();
+            
+                var employeeCollection = (from employees in cotext.Employees select employees).ToList();
+                if (employeeCollection != null)
+                {
+                    ViewBag.Employees = employeeCollection.Select(N => new SelectListItem
+                    {
+                        Text = N.FacilityId + " - " + N.Facility,
+                        Value = N.FacilityId.ToString()
+                    });
+                }
+            
+            return View();
+        }
+
         public ActionResult Index()
         {
+
             return View();
            
         }
@@ -26,7 +44,7 @@ namespace KendoApp.Controllers
         }
 
         [HttpPost]
-        public JsonResult GetFacilityList(int? PharmacyId)
+        public JsonResult GetFacilityList([DataSourceRequest] DataSourceRequest request,int? PharmacyId)
         {
 
             var Facility = db.Facilities.AsQueryable();
@@ -35,21 +53,61 @@ namespace KendoApp.Controllers
                 Facility = Facility.Where(s => s.PharmacyId == PharmacyId);
 
             }
+            
             return Json(Facility.Select(s => new { Facility_ID = s.FacilityId, Facility_Name = s.FacilityName }), JsonRequestBehavior.AllowGet);
         }
 
-        [HttpPost]
-        public ActionResult GetEmployeeList([DataSourceRequest] DataSourceRequest request, int? facilityId)
-        {
-            TempData["facId"] = facilityId;
-            var EmpData = db.Employees.AsQueryable();
-            if (facilityId > 0)
-            {
-                EmpData = EmpData.Where(s => s.FacilityId == facilityId);
+         
+        //[HttpPost]
+        //public ActionResult GetEmployeeList([DataSourceRequest] DataSourceRequest request, string[] facilityId)
+        //{
+        //    TempData["facId"] = facilityId;
+        //    List<int> FacIds = new List<int>();
+           
+        //    var EmpData = db.Employees.AsQueryable();
+        //    foreach (var num in facilityId)
+        //    {
+        //        FacIds.Add(Int32.Parse(num));  
+        //        foreach(var its in FacIds) { 
+        //        if (FacIds.Count() > 0)
+        //        {
+        //            EmpData = EmpData.Where(s => s.FacilityId == its);
+        //        }
+        //        }
+        //    }
+        //    return Json(EmpData.Select(e => new { EmployeeId = e.EmployeeId, EmployeeName = e.EmployeeName, EmployeeAddress = e.EmployeeAddress, EmployeeDesignation = e.EmployeeDesignation, FacilityId = e.FacilityId }), JsonRequestBehavior.AllowGet);
+        //}
 
+
+        [HttpPost]
+        public ActionResult GetEmployeeList([DataSourceRequest] DataSourceRequest request, string[] list)
+        {
+           // TempData["facId"] = facilityId;
+            List<int> facidlist = new List<int>();
+
+           var EmpData = db.Employees.AsQueryable();
+            List<Employee> emplist = new List<Employee>();
+            if (list.Count() > 0)
+            {
+                foreach (var item in list)
+                {
+                    int? i = Int32.Parse(item);
+                    EmpData = EmpData.Where(s => s.FacilityId == i);
+                    foreach(var data in EmpData)
+                    {
+                        emplist.Add(data);
+                    }
+                   
+                    //facidlist.Add(Int32.Parse(item));
+                }
+               //var EmpData = db.Employees.Where(s => facidlist.Contains(Convert.ToInt32(s.FacilityId)).ToList(); 
+               return Json(emplist.Select(e => new { EmployeeId = e.EmployeeId, EmployeeName = e.EmployeeName, EmployeeAddress = e.EmployeeAddress, EmployeeDesignation = e.EmployeeDesignation, FacilityId = e.FacilityId }), JsonRequestBehavior.AllowGet);
+                
             }
-            return Json(EmpData.Select(e => new { EmployeeId = e.EmployeeId, EmployeeName = e.EmployeeName, EmployeeAddress = e.EmployeeAddress, EmployeeDesignation = e.EmployeeDesignation, FacilityId = e.FacilityId }), JsonRequestBehavior.AllowGet);
+            return Json("null");
         }
+
+
 
         public ActionResult UpdateEmployee([DataSourceRequest] DataSourceRequest request, Employee employee)
         {
@@ -70,10 +128,17 @@ namespace KendoApp.Controllers
                 if (addEmployee.EmployeeId == 0)
                 {
                     var FID = TempData["facId"];
-                    addEmployee.FacilityId = (int?)FID;
+                    //var data = FID.ToString();
+                    foreach (var item in FID.ToString())
+                    {
+                        addEmployee.FacilityId = (int)item;
+                        db.Employees.Add(addEmployee);
+                        db.SaveChanges();
+                    }
+                    //addEmployee.FacilityId = (int?)FID;
 
-                    db.Employees.Add(addEmployee);
-                    db.SaveChanges();
+                   // db.Employees.Add(addEmployee);
+                    //db.SaveChanges();
                 }
                 else
                 {

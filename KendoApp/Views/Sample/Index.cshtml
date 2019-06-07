@@ -1,8 +1,8 @@
 ﻿
 @{
-                /**/
+    /**/
 
-                ViewBag.Title = "Index";
+    ViewBag.Title = "Index";
 }
 
 <h2>Index</h2>
@@ -18,59 +18,62 @@
 
 
 @(Html.Kendo().DropDownList()
-                                .Name("pharmacy")
-                                .Events(c=>c.Select("onselect"))
-                                .HtmlAttributes(new { style = "width:30%" })
-                                .OptionLabel("Select Pharmacy...")
-                                .DataTextField("Pharmacy_Name")//value
-                                .DataValueField("Pharmacy_id")
-
-
-                                .DataSource(source =>
-                                {
-                                    source.Read(read =>
-                                    {
-                                        read.Action("GetPharmacyList", "Data");//action method & Controller
-                                    });
-                                })
+         .Name("pharmacy")
+                                        .Events(c => c.Select("onselect"))
+                                        .HtmlAttributes(new { style = "width:30%" })
+                                        .OptionLabel("Select Pharmacy...")
+                                        .DataTextField("Pharmacy_Name")//value
+                                        .DataValueField("Pharmacy_id")
+                                        .DataSource(source =>
+                                        {
+                                            source.Read(read =>
+                                            {
+                                                read.Action("GetPharmacyList", "Data");//action method & Controller
+                                });
+                                        })
 )
 
 <h4 style="margin-top: 2em;">Facilities:</h4>
 @*@(Html.Kendo().MultiSelect()
-                            .Name("facility")
-                            .HtmlAttributes(new { style = "width:30%" })
-                            .DataTextField("Facility_Name")
-                            .DataValueField("Facility_ID")
-                            .Events(e => e.Select("onSelectFacilityValue"))
-                            .DataSource(source =>
-                            {
-                                source.Read(read =>
-                            {
-                                read.Action("GetFacilityList", "Data")
-                    .Data("filterFacility");
-                            })
-                        .ServerFiltering(true);
-                            })
-                            .Enable(false)
-                            .AutoBind(false)
+                                .Name("facility")
+                                .HtmlAttributes(new { style = "width:30%" })
+                                .DataTextField("Facility_Name")
+                                .DataValueField("Facility_ID")
+                                .Events(e => e.Select("onSelectFacilityValue"))
+                                .DataSource(source =>
+                                {
+                                    source.Read(read =>
+                                {
+                                    read.Action("GetFacilityList", "Data")
+                        .Data("filterFacility");
+                                })
+                            .ServerFiltering(true);
+                                })
+                                .Enable(false)
+                                .AutoBind(false)
 
-)*@
+    )*@
 
 
-@(Html.Kendo().MultiSelect()
-              .Name("required")
-                .DataTextField("Facility_Name")
-               .DataValueField("Facility_ID")
-              .Placeholder("Select attendees...")
-              .AutoBind(true)
-              .DataSource(source =>
-                    {
+
+
+
+@(Html.Kendo().DropDownList()
+                    .Events(e => e.Select("onSelectFacilityValue"))
+                          .Name("required")
+                          .DataTextField("Facility_Name")
+                          .DataValueField("Facility_ID")
+                         // .Placeholder("Select Facilities...")
+                          .AutoBind(false)
+                     .Template("<input type='checkbox' name='cb' value='#:data.Facility_Name#' /> #:data.Facility_Name#")
+                     .DataSource(source =>
+    {
         source.Read(read =>
         {
             read.Action("GetFacilityList", "Sample");//action method & Controller
         });
     })
-    
+
 )
 
 
@@ -82,19 +85,52 @@
     //    };
     //}
 
-   function onselect(e) {
-       var dataItem = this.dataItem(e.item.index());
-       var PharmacyId = dataItem.Pharmacy_id;
-       
+    function onselect(e) {
+        var dataItem = this.dataItem(e.item.index() + 1);
+        var PharmacyId = dataItem.Pharmacy_id;
+
         alert(PharmacyId)
         $.ajax({
             url: '/Sample/GetFacilityList',
             type: 'POST',
             dataType: 'json',
             data: { PharmacyId: PharmacyId },
-            success: function (result)
-            {
-              alert(JSON.stringify(result));
+            success: function (listItems) {
+                alert(JSON.stringify(listItems));
+                var grid = $("#required").data("kendoMultiSelect");
+                grid.setDataSource(listItems);
+
+                //if (JSON.stringify(listItems) != "[]") {
+                //       $.each(listItems, function (i, listItem) {
+                //           $("#required").data("kendoMultiSelect")
+                //            .dataSource.add({ "Pharmacy_Name": listItem.Text, "Pharmacy_id": listItem.Value });
+                //        alert('Listitem is' + listItem.Text);
+                //        alert('Value is' + listItem.Value);
+                //        alert('Selected is' + listItem.Selected);
+                //    })
+
+
+                //}
+
+                //$("#required").kendoMultiSelect();
+                //var multiselect = $("#required").data("kendoMultiSelect");
+                //multiselect.dataSource.data(result);
+                //multiselect.refresh();
+
+
+
+                //if (JSON.stringify(reslt) != "[]") {
+                //    var ddl = $('#required').data("kendoDropDownList");
+                //    ddl.setDataSource(reslt);
+                //    ddl.refresh();
+
+                //   // $('#required').show();
+                //}
+
+                // var ddl = $('#required').data("kendoDropDownList");
+                // ddl.setDataSource(result);
+                // ddl.refresh();
+                // $('#required').show();
             },
             error: function () {
                 alert('error');
@@ -102,56 +138,97 @@
         });
 
     }
+    
+        function onSelectFacilityValue(e) {
+           // var dataItem = this.dataItem(e.item.index());
+           // var facilityId = dataItem.Facility_ID;
+            //var list = [];
+            //var cbs = dataItem.Facility_ID;
+            ////var dataSource = ItemsViewModel.get('Items');
+            //for (var i = 0; i < cbs.length; i++) {
+               
+            //        list.push(cbs[i].value);
+                
+            //}
+            //if (list.length == 0) {
+            //    display = "-- Select --";
+            //}
+            //else {
+            //    display = list.join(", ");
+            //}
 
-    function onSelectFacilityValue(e) {
-        var dataItem = this.dataItem(e.item.index());
-        var facilityId = dataItem.Facility_ID;
+            var dataItem = this.dataItem(e.item);
+            var ddl = $("#required").data("kendoDropDownList");
+            var cbs = document.getElementsByName("cb");
+            var display;
 
-        alert(facilityId)
-        $.ajax({
-            url: '/Data/GetEmployeeList',
-            type: 'POST',
-            dataType: 'json',
-            data: { facilityId: facilityId },
-            success: function (result) {
-                alert(JSON.stringify(result));
-                var grid = $('#Employees').getKendoGrid();
-                grid.dataSource.data(result);
-                grid.refresh();
-            },
-            error: function () {
-                alert('error');
+            var list = [];
+            for (var i = 0; i < cbs.length; i++) {
+                if (cbs[i].checked) {
+                    list.push(cbs[i].value);
+                }
             }
-        });
 
+            if (list.length == 0) {
+                display = "-- Select --";
+            }
+            else {
+                display = list.join(", ");
+            }
+
+            ddl.text(display);
+
+            alert(list)
+            $.ajax({
+                url: '/Sample/GetEmployeeList',
+                type: 'POST',
+                dataType: 'json',
+                data: { list: list },
+                success: function (result) {
+
+                    alert(JSON.stringify(result));
+                    var grid = $('#Employees').getKendoGrid();
+                    // grid.dataSource.data().push.apply(dataSource.data(), result)
+                    debugger;
+                    //var child = grid.dataSource.data();
+                    //child.add(result);
+                    // grid.dataSource.data().push(result);
+                    grid.dataSource.data(result);
+                    grid.refresh();
+                },
+                error: function () {
+                    alert('error');
+                }
+            });
+        
     }
 </script>
 <div id="grid">
 
 
     @(Html.Kendo().Grid<KendoApp.Models.Employee>()
-                                                                .Name("Employees")
-                                                                .ToolBar(tb => tb.Create())
-                                                                .Pageable()
-                                                                .AutoBind(true)
-                                                                .DataSource(dataSource => dataSource.Ajax()
-                                                                        .Model(model => model.Id(c => c.EmployeeId))
-                                                                        .Read("GetEmployeeList", "Data")
-                                                                        .Update("UpdateEmployee", "Data")
-                                                                        .Create("InsertEmployee", "Data")
-                                                                        .Destroy("DeleteEmployee", "Data")
-                                                                )
-                                                                .Columns(cols =>
-                                                                {
-                                                                    cols.Bound(c => c.EmployeeName).Width(300);
-                                                                    cols.Bound(c => c.EmployeeAddress);
-                                                                    cols.Bound(c => c.EmployeeDesignation);
-                                                                    cols.Command(cmd =>
-                                                        {
-                                                            cmd.Edit();
-                                                            cmd.Destroy();
-                                                        });
-                                                                })
+                                   .Name("Employees")
+                                   .ToolBar(tb => tb.Create())
+                                   .Pageable()
+                                   .AutoBind(true)
+                                   .DataSource(dataSource => dataSource.Ajax()
+                                   .Model(model => model.Id(c => c.EmployeeId))
+                                   //  .Read("GetEmployeeList", "Sample")
+                                   .Update("UpdateEmployee", "Sample")
+                                   .Create("InsertEmployee", "Sample")
+                                   .Destroy("DeleteEmployee", "Sample")
+                                  )
+                                    .Columns(cols =>
+                                    {
+                                        cols.Bound(c => c.EmployeeName).Width(300);
+                                        cols.Bound(c => c.EmployeeAddress);
+                                        cols.Bound(c => c.EmployeeDesignation);
+                                        cols.Command(cmd =>
+                                        {
+                                            cmd.Edit();
+                                            cmd.Destroy();
+                                        });
+                                    })
     )
 
 </div>

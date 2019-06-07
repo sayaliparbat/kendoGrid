@@ -1,0 +1,94 @@
+﻿
+@{
+    ViewBag.Title = "KendoMulti";
+}
+
+<h2>KendoMulti</h2>
+
+
+
+
+<table>
+    <tr>
+        <td class="td1" style="width: 300px;">@Html.Kendo().DropDownList().Name("ddlCountry").DataTextField("CountryName").DataValueField("CountryId").Events(e => e.Change("onChange")).BindTo(Model)</td>
+             @*
+            <td style="width: 300px;">
+                @Html.Kendo().MultiSelect().Name("ddlState").DataTextField("StateName").DataValueField("StateId")
+            </td>*@
+        <td style="width: 300px;">@Html.Kendo().DropDownList().Name("ddlState").DataTextField("StateName").DataValueField("StateId").Events(e => e.Change("statechange"))</td>
+
+
+    </tr>
+</table>
+
+
+<br class="clear" />
+<br />
+
+
+<script type="text/javascript">
+    function data_By_StateId(e) {
+        var value = $("#ddlState").data("kendoMultiSelect").value();
+        return { parentid: value }; // send the parent id value as part of the Read request
+    }
+
+    function States_Create(e) {
+        var value = $("#ddlCountry").data("kendoDropDownList").value();
+
+        var stateval = $("#ddlState").data("kendoDropDownList").value();
+
+        return
+        {
+            parentid: passcountryval,
+                stateval: passstateval;
+        }; // send the parent id value as part of the Read request
+    }
+
+    function statechange(e) {
+        debugger;
+        var pid = $('#ddlState').val();
+         $.get('/Cascade/Get_griddata_By_StateId',
+         { parentid: pid },
+            function (data) {
+            var grid = $("#grid").data("kendoGrid");
+            grid.dataSource.data(data); // rebind the Grid's DataSource
+        });
+
+
+    }
+
+
+    function onChange() {
+        var pid = $('#ddlCountry').val();
+        $.ajaxSettings.traditional = true
+        $.ajax({
+            type: 'get',
+            url: '/Cascade/StateBind1',
+            data: { 'CountryIds': pid },
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (data) {
+                var grid = $("#ddlState").data("kendoMultiSelect");
+                grid.setDataSource(data);
+            },
+            error: function (e) {
+                alert(e.message);
+            }
+        });
+        //$.get('/Cascade/StateBind1', { CountryIds: valueArray }, function (data) {
+        //    debugger;
+        //    var grid = $("#ddlState").data("kendoMultiSelect");
+        //    debugger;
+        //    grid.setDataSource(data);
+        //})
+    }
+
+</script>
+<style>
+    .myClass .k-multiselect-wrap k-floatwrap .td1 {
+        overflow: auto;
+        max-height: 50px;
+    }
+</style>
+
+
