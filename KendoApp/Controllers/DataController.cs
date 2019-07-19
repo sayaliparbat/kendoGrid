@@ -45,7 +45,7 @@ namespace KendoApp.Controllers
                 EmpData = EmpData.Where(s => s.FacilityId == facilityId);
 
             }
-            return Json(EmpData.Select(e => new { EmployeeId = e.EmployeeId, EmployeeName = e.EmployeeName, EmployeeAddress = e.EmployeeAddress, EmployeeDesignation = e.EmployeeDesignation, FacilityId = e.FacilityId }), JsonRequestBehavior.AllowGet);
+            return Json(EmpData.Select(e => new { EmployeeId = e.EmployeeId, EmployeeName = e.EmployeeName, EmployeeAddress = e.EmployeeAddress, EmployeeDesignation = e.EmployeeDesignation}), JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult UpdateEmployee([DataSourceRequest] DataSourceRequest request, Employee employee)
@@ -79,46 +79,6 @@ namespace KendoApp.Controllers
                     db.SaveChanges();
                 }
             }
-
-
-            //if (addEmployee != null && ModelState.IsValid)
-            //{
-            //    var emp = new Employee
-            //{
-            //    EmployeeId = addEmployee.EmployeeId,
-            //    EmployeeName = addEmployee.EmployeeName,
-            //    EmployeeAddress = addEmployee.EmployeeAddress,
-            //    EmployeeDesignation = addEmployee.EmployeeDesignation
-
-            //};
-
-
-            //    db.Employees.Add(emp);
-            //    db.SaveChanges();
-            //    addEmployee.EmployeeId = emp.EmployeeId;
-            //}
-
-            //var entity = new Employee();
-            //entity.EmployeeId = addEmployee.EmployeeId;
-            //entity.EmployeeName = addEmployee.EmployeeName;
-            //entity.EmployeeAddress = addEmployee.EmployeeDesignation;
-            //entity.EmployeeDesignation = addEmployee.EmployeeDesignation;
-
-
-            //if (entity.EmployeeId == 0)
-            //{
-            //    entity.EmployeeId = 101;
-            //}
-
-            //if (addEmployee != null)
-            //{
-            //     entity.EmployeeId = addEmployee.EmployeeId;
-            //}
-
-            //db.Employees.Add(entity);
-            //db.SaveChanges();
-
-            //addEmployee.EmployeeId = entity.EmployeeId;
 
 
             return Json(new[] { addEmployee }.ToDataSourceResult(request));

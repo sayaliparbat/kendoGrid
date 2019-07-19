@@ -1,0 +1,120 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+@(Html.Kendo().DropDownList()
+                               .Name("pharmacy")
+                               .Events(c => c.Select("onselect"))
+                               .HtmlAttributes(new { style = "width:30%" })
+                               .OptionLabel("Select Pharmacy...")
+                               .DataTextField("Pharmacy_Name")//value
+                               .DataValueField("Pharmacy_id")
+                               .DataSource(source =>
+                                 {
+                                     source.Read(read =>
+                               {
+                             read.Action("GetPharmacyList", "Default");//action method & Controller
+                               });
+                             })
+)
+
+
+<h4 style="margin-top: 2em;">Facilities:</h4>
+@(Html.Kendo().MultiSelect()
+                               .Name("required")
+                               .HtmlAttributes(new { style = "width:30%" })
+                               .DataTextField("Facility_Name")
+                               .DataValueField("Facility_ID")
+                               .Placeholder("Select Facilities...")
+                               //.Events(e => e.Select("onSelectFacilityValue"))
+                               .Events(e => e.Change("onChange"))
+                            //   .ItemTemplate("<input type='checkbox' class='cbk' value='#:data.Facility_ID#'/> #:data.Facility_Name#")
+                             //  .HeaderTemplate("<div><input type='checkbox' id='Header'><label> Select All</label></div>")
+
+
+)
+<div>
+<div>
+    <button id="btnSave" type="button"> Save </button>
+    <button id="btnEdit" type="button"> Edit </button>
+</div>
+ </div>
+<script>
+    $("#btnSave").kendoButton({
+        click: function (e) {
+                     
+            if (confirm("Are you sure you want to Save this?")) {
+               // console.log("hi");
+                var facilityId = $("#required").data("kendoMultiSelect").value();
+                alert(facilityId)
+
+                $.ajax({
+                url: '/Default/InsertData',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    facilityId: facilityId
+                },
+                success: function (result) {
+                   
+
+                },
+                error: function () {
+                    alert('error');
+                }
+            });
+
+
+
+            }
+        else{
+            return false;
+         }
+         
+            
+
+            
+        }
+    });
+
+</script>
+<script>
+      function onselect(e) {
+        var dataItem = this.dataItem(e.item.index() + 1);
+          var PharmacyId = dataItem.Pharmacy_id;
+
+        alert(PharmacyId)
+        $.ajax({
+            url: '/Default/GetFacilityList',
+            type: 'POST',
+            dataType: 'json',
+            data: { PharmacyId: PharmacyId },
+            success: function (result) {
+                var data1 =JSON.stringify(result);
+                var val = $("#required").data("kendoMultiSelect");
+                val.setDataSource(result);
+                
+            },
+            error: function () {
+                alert('error');
+            }
+        });
+
+    }
+
+ </script>
+
+
+
+<script>
+    function onChange(e) {
+
+       
+
+
+    }
+
+</script>

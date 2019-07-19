@@ -1,0 +1,66 @@
+﻿
+@{
+    ViewBag.Title = "FacilityRemoteData";
+}
+
+<h2>FacilityRemoteData</h2>
+
+
+
+@*@(Html.Kendo().MultiSelect(m => m)
+                                   .Name("required")
+                                   .HtmlAttributes(new { style = "width:30%" })
+                                   .DataTextField("Facility_Name")
+                                   .DataValueField("Facility_ID")
+                                   .Placeholder("Select Facilities...")
+                                   //.Events(e => e.Select("onSelectFacilityValue"))
+                                   .Events(e => e.Change("onChange"))
+    //.ItemTemplate("<input type='checkbox' value='#:data.Facility_ID#'/> #:data.Facility_Name#")
+    //  .HeaderTemplate("<div><input type='checkbox' id='Header'><label> Select All</label></div>")
+
+
+)*@
+
+
+
+
+@*@(Html.Kendo().DropDownListFor(m => m)
+        .DataValueField("Facility_ID")
+        .DataTextField("Facility_Name")
+        .DataSource(ds => ds.Read("GetFacilityList", "Sample"))
+        .Events(e => e.Change("onChange"))
+)
+
+
+<script>
+    function onChange(e)
+    {
+
+        var facilityId = $("#required").data("kendoMultiSelect").value();
+        alert(facilityId)
+
+
+        $.ajax({
+            url: '/Sample/GetEmployeeList',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                facilityId: facilityId
+            },
+            success: function (result) {
+
+                alert(JSON.stringify(result));
+                var grid = $('#Employees').getKendoGrid();
+                grid.dataSource.data(result);
+                grid.refresh();
+            },
+            error: function () {
+                alert('error');
+            }
+        });
+
+
+    }
+
+
+</script>*@

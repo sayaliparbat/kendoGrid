@@ -22,6 +22,7 @@ namespace KendoApp.Models
         public int FacilityId { get; set; }
         public string FacilityName { get; set; }
         public Nullable<int> PharmacyId { get; set; }
+        public Nullable<bool> IsActive { get; set; }
     
         public virtual Pharmacy Pharmacy { get; set; }
         public virtual ICollection<Employee> Employees { get; set; }

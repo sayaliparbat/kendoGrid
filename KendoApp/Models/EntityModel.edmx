@@ -22,6 +22,7 @@
           <Property Name="FacilityId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="FacilityName" Type="varchar" MaxLength="20" />
           <Property Name="PharmacyId" Type="int" />
+          <Property Name="IsActive" Type="bit" />
         </EntityType>
         <EntityType Name="Pharmacy">
           <Key>
@@ -80,6 +81,7 @@
           <Property Name="PharmacyId" Type="Int32" />
           <NavigationProperty Name="Pharmacy" Relationship="Self.FK_Facilities_Pharmacy" FromRole="Facilities" ToRole="Pharmacy" />
           <NavigationProperty Name="Employees" Relationship="TrainingModel.FK_Employee_Facilities" FromRole="Facility" ToRole="Employee" />
+          <Property Name="IsActive" Type="Boolean" />
         </EntityType>
         <EntityType Name="Pharmacy">
           <Key>
@@ -146,6 +148,7 @@
           <EntitySetMapping Name="Facilities">
             <EntityTypeMapping TypeName="TrainingModel.Facility">
               <MappingFragment StoreEntitySet="Facilities">
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
                 <ScalarProperty Name="FacilityId" ColumnName="FacilityId" />
                 <ScalarProperty Name="FacilityName" ColumnName="FacilityName" />
                 <ScalarProperty Name="PharmacyId" ColumnName="PharmacyId" />
