@@ -164,6 +164,7 @@
     <Compile Include="Models\Facility.cs">
       <DependentUpon>EntityModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\FacilityViewModel.cs" />
     <Compile Include="Models\Pharmacy.cs">
       <DependentUpon>EntityModel.tt</DependentUpon>
     </Compile>
@@ -228,6 +229,7 @@
     <Content Include="Views\Sample\KendoMulti.cshtml" />
     <Content Include="Views\Sample\FacilityRemoteData.cshtml" />
     <Content Include="Views\Default\Index.cshtml" />
+    <Content Include="Views\Default\Sample.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

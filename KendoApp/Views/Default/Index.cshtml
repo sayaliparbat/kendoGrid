@@ -5,98 +5,124 @@
 
 <h2>Index</h2>
 
+<h4 style="margin-top: 2em;">Pharmacy:</h4>
 @(Html.Kendo().DropDownList()
-                               .Name("pharmacy")
-                               .Events(c => c.Select("onselect"))
-                               .HtmlAttributes(new { style = "width:30%" })
-                               .OptionLabel("Select Pharmacy...")
-                               .DataTextField("Pharmacy_Name")//value
-                               .DataValueField("Pharmacy_id")
-                               .DataSource(source =>
-                                 {
-                                     source.Read(read =>
-                               {
-                             read.Action("GetPharmacyList", "Default");//action method & Controller
-                               });
-                             })
+                                                                   .Name("pharmacy")
+                                                                   .Events(c => c.Select("onselect"))
+                                                                   .HtmlAttributes(new { style = "width:30%" })
+                                                                   .OptionLabel("Select Pharmacy...")
+                                                                   .DataTextField("Pharmacy_Name")//value
+                                                                   .DataValueField("Pharmacy_id")
+                                                                   //   .Events(e => e.Change("onPharmacyChange"))
+                                                                   .DataSource(source =>
+                                                                     {
+                                                                         source.Read(read =>
+                                                                   {
+                                                                       read.Action("GetPharmacyList", "Default");//action method & Controller
+                                                       });
+                                                                     })
+
 )
 
 
 <h4 style="margin-top: 2em;">Facilities:</h4>
 @(Html.Kendo().MultiSelect()
-                               .Name("required")
-                               .HtmlAttributes(new { style = "width:30%" })
-                               .DataTextField("Facility_Name")
-                               .DataValueField("Facility_ID")
-                               .Placeholder("Select Facilities...")
-                               //.Events(e => e.Select("onSelectFacilityValue"))
-                               .Events(e => e.Change("onChange"))
-                            //   .ItemTemplate("<input type='checkbox' class='cbk' value='#:data.Facility_ID#'/> #:data.Facility_Name#")
-                             //  .HeaderTemplate("<div><input type='checkbox' id='Header'><label> Select All</label></div>")
+                                                                  .Name("required")
+                                                                   .HtmlAttributes(new { style = "width:30%" })
+                                                                   .DataTextField("Facility_Name")
+                                                                   .DataValueField("Facility_ID")
+                                                                   .Placeholder("Select Facilities...")
+                                  // .Events(e => e.Select("onSelectFacilityValue"))
+                                  //  .Events(e => e.Change("onChange"))
+                                  .ItemTemplate("<input type='checkbox' class='case' name='userid' value='#:data.Facility_ID#'/> #:data.Facility_Name#")
+                                 .HeaderTemplate("<div><input type='checkbox' id='' checked='checked'><label> Select All</label></div>")
 
 
 )
+
+
+@*@(Html.Kendo().MultiSelect()
+                                           .Name("activeUser")
+                                           .HtmlAttributes(new { style = "width:30%" })
+                                           .DataTextField("Facility_Name")
+                                           .DataValueField("Facility_ID")
+                                           .Placeholder("Selected Facilities...")
+                                           //.Events(e => e.Select("onSelectFacilityValue"))
+                                           .Events(e => e.Change("onChange"))
+
+    )*@
+
+@*@(Html.Kendo().MultiSelect()
+                                             .Name("User")
+                                             .HtmlAttributes(new { style = "width:30%" })
+                                             .DataTextField("Facility_Name")
+                                             .DataValueField("Facility_ID")
+                                             .Placeholder("Facilities...")
+                                             //    .Events(e => e.Change("onChangeEvent"))
+    )*@
+
+
 <div>
-<div>
-    <button id="btnSave" type="button"> Save </button>
-    <button id="btnEdit" type="button"> Edit </button>
+    <div>
+        <button id="btnSave" type="button"> Save </button>
+        <button id="btnEdit" type="button"> Edit </button>
+    </div>
 </div>
- </div>
 <script>
     $("#btnSave").kendoButton({
+      
         click: function (e) {
-                     
+
             if (confirm("Are you sure you want to Save this?")) {
-               // console.log("hi");
+                // console.log("hi");
                 var facilityId = $("#required").data("kendoMultiSelect").value();
                 alert(facilityId)
 
                 $.ajax({
-                url: '/Default/InsertData',
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    facilityId: facilityId
-                },
-                success: function (result) {
-                   
+                    url: '/Default/InsertData',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        facilityId: facilityId
+                    },
+                    success: function (result) {
+                        var val = $("#activeUser").data("kendoMultiSelect");
+                        val.setDataSource(result);
 
-                },
-                error: function () {
-                    alert('error');
-                }
-            });
-
-
-
+                    },
+                    error: function () {
+                        alert('error');
+                    }
+                });
             }
-        else{
-            return false;
-         }
-         
-            
-
-            
+            else {
+                return false;
+            }
         }
     });
 
 </script>
 <script>
-      function onselect(e) {
+    function onselect(e) {
+        debugger
         var dataItem = this.dataItem(e.item.index() + 1);
-          var PharmacyId = dataItem.Pharmacy_id;
+        var PharmacyId = dataItem.Pharmacy_id;
 
-        alert(PharmacyId)
+        alert(PharmacyId) 
         $.ajax({
             url: '/Default/GetFacilityList',
             type: 'POST',
             dataType: 'json',
             data: { PharmacyId: PharmacyId },
             success: function (result) {
-                var data1 =JSON.stringify(result);
+                var data1 = JSON.stringify(result);
                 var val = $("#required").data("kendoMultiSelect");
                 val.setDataSource(result);
-                
+                //$("#multiselect").kendoMultiSelect();
+                //var multiselect = $("#required").data("kendoMultiSelect");
+                //multiselect.value(result);
+
+
             },
             error: function () {
                 alert('error');
@@ -105,16 +131,103 @@
 
     }
 
- </script>
+</script>
+
+@*<script>
+        function onChange(e) {
+
+            if (confirm("Are you sure you want to Cancel this?")) {
+                debugger
+                var facilityIds = $("#activeUser").data("kendoMultiSelect").value();
+                alert(facilityIds)
+
+                $.ajax({
+                    url: '/Default/UpdatedUserList',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        facilityIds: facilityIds
+                    },
+                    success: function (result) {
+                        var val = $("#User").data("kendoMultiSelect");
+                        val.setDataSource(result);
+
+                    },
+                    error: function () {
+                        alert('error');
+                    }
+                });
+
+                }
+            else {
+                return false;
+            }
 
 
+        }
+
+    </script>*@
+
+@*<script>
+        function onPharmacyChange(e) {
+
+            var pharmacyId = $("#pharmacy").data("kendoDropDownList").value();
+            alert(pharmacyId)
+            debugger
+            $.ajax({
+                url: '/Default/GetFacilityList',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    pharmacyId: pharmacyId
+                },
+                success: function (results) {
+
+                    var val = $("#required").data("kendoMultiSelect");
+                    val.setDataSource(results);
+
+                },
+                error: function () {
+                    alert('error');
+                }
+            });
+        }
+    </script>*@
+
+
+@*<select id="multiselect1" multiple="multiple">
+    <option> Item1</option>
+    <option>Item2</option>
+</select>*@
+<script>
+
+
+
+
+        // get the value of the multiselect.
+       // var value = multiselect.value();
+
+        // set the value of the multiselect.
+       // multiselect.value(["1", "2"]); //select items which have value respectively "1" and "2"
+</script>
 
 <script>
-    function onChange(e) {
+    if ($(".case:checked").length != 0) {
 
-       
+        var selectedValues = "";
+
+        $checkedCheckboxes = $("input:checkbox[name=userid]:checked");
+
+        $checkedCheckboxes.each(function () {
+
+            selectedValues += $(this).val() + ",";
+
+        });
+
+        required.value() = selectedValues;
 
 
     }
-
-</script>
+    
+   
+    </script>

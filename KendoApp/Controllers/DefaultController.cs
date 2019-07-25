@@ -17,7 +17,13 @@ namespace KendoApp.Controllers
         {
             return View();
         }
-        
+
+        // GET: Default
+        public ActionResult Sample()
+        {
+            return View();
+        }
+
         public JsonResult GetPharmacyList()
         {
             return Json(db.Pharmacies.Select(x => new { Pharmacy_id = x.PharmacyId, Pharmacy_Name = x.PharmacyName }), JsonRequestBehavior.AllowGet);
@@ -34,39 +40,73 @@ namespace KendoApp.Controllers
 
             }
 
-            return Json(Facility.Select(s => new { Facility_ID = s.FacilityId, Facility_Name = s.FacilityName }), JsonRequestBehavior.AllowGet);
+            return Json(Facility.Select(s => new { Facility_ID = s.FacilityId, Facility_Name = s.FacilityName,Facility_Status=s.IsActive }), JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult InsertData([DataSourceRequest] DataSourceRequest request, string[] facilityId,Facility facility)
+        public ActionResult InsertData([DataSourceRequest] DataSourceRequest request, string[] facilityId)
         {
-            //var FacilityUpdate = db.Facilities.First(fac => fac.FacilityId == facility.FacilityId);
             var FacilityData = db.Facilities.AsQueryable();
             List<int> facidlist = new List<int>();
-           
-            List<Facility> facilitylist = new List<Facility>();
+
+    
             if (facilityId.Count() > 0)
             {
                 foreach (var item in facilityId)
                 {
                     int i = Int32.Parse(item);
 
-                    foreach (var data in FacilityData)
-                    {
-                        if (data.FacilityId == i)
-                        {
-                            facilitylist.Add(data);
-
-                        }
-                    }
-                   facidlist.Add(Int32.Parse(item));
-                
+                    facidlist.Add(Int32.Parse(item));
                 }
-               TryUpdateModel(FacilityUpdate);
 
-              db.SaveChanges();
-                       
-            return Json(ModelState.ToDataSourceResult());
+                db.Facilities.Where(x => facidlist.Contains(x.FacilityId)).ToList()
+                               .ForEach(a =>
+                               {
+                                   a.IsActive = true;
+                               }
+                                       );
+
+                db.SaveChanges();
+            }
+
+           var activeUser = FacilityData.Where(x => x.IsActive == true).ToList();
+
+           return Json(activeUser.Select(s => new { Facility_ID = s.FacilityId, Facility_Name = s.FacilityName }), JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult UpdatedUserList([DataSourceRequest] DataSourceRequest request, string[] facilityIds)
+        {
+
+            var FacilityData = db.Facilities.AsQueryable();
+            List<int> UpdaetedIdlist = new List<int>();
+
+
+            if (facilityIds.Count() > 0)
+            {
+                foreach (var item in facilityIds)
+                {
+                    int i = Int32.Parse(item);
+
+                    UpdaetedIdlist.Add(Int32.Parse(item));
+                }
+
+                db.Facilities.Where(x => UpdaetedIdlist.Contains(x.FacilityId)).ToList()
+                               .ForEach(a =>
+                               {
+                                   a.IsActive = false;
+                               }
+                                       );
+
+                db.SaveChanges();
+            }
+            
+            var activeUser = FacilityData.Where(x => x.IsActive == true).ToList();
+            
+
+            return Json(activeUser.Select(s => new { Facility_ID = s.FacilityId, Facility_Name = s.FacilityName }), JsonRequestBehavior.AllowGet);
+
+         }
+    
+
 
 
 

@@ -1,0 +1,184 @@
+﻿
+@{
+    ViewBag.Title = "Sample";
+}
+
+    <meta charset="utf-8" />
+    <title>Kendo UI Snippet</title>
+
+    @*<link rel="stylesheet" href="http://kendo.cdn.telerik.com/2016.3.1028/styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="http://kendo.cdn.telerik.com/2016.3.1028/styles/kendo.rtl.min.css" />
+    <link rel="stylesheet" href="http://kendo.cdn.telerik.com/2016.3.1028/styles/kendo.silver.min.css" />
+    <link rel="stylesheet" href="http://kendo.cdn.telerik.com/2016.3.1028/styles/kendo.mobile.all.min.css" />
+
+    <script src="http://code.jquery.com/jquery-1.12.4.min.js"></script>
+    <script src="http://kendo.cdn.telerik.com/2016.3.1028/js/kendo.all.min.js"></script>*@
+
+
+    <script>
+       
+        function onselect(e) {
+            var dataItem = this.dataItem(e.item.index() + 1);
+            var PharmacyId = dataItem.Pharmacy_id;
+
+            alert(PharmacyId)
+            $.ajax({
+                url: '/Default/GetFacilityList',
+                type: 'POST',
+                dataType: 'json',
+                data: { PharmacyId: PharmacyId },
+                success: function (result) {
+                    //var data1 = JSON.stringify(result);
+                    //var val = $("#required").data("kendoMultiSelect");
+                    //val.setDataSource(result);
+                    // $("#multiselect").kendoMultiSelect();
+                    //var multiselect = $("#ddlfacility").data("kendoMultiSelect");
+                    //multiselect.value(result);
+                    debugger
+                   facilityBinding(result);
+       
+                    //$(result).each(function (key, value) {
+                    //    $("#ddlfacility").append($("<option></option>").val(value.Facility_ID).html(value.Facility_Name));
+                    //});  
+                    //$('#ddlfacility').multiselect({ includeSelectAllOption: true });
+                    //$("#ddlfacility").multiselect('refresh');
+                },
+                error: function () {
+                    alert('error');
+                }
+            });
+
+        }
+        function facilityBinding(result) {
+            debugger   
+                var ds = new kendo.data.DataSource({
+                data: result
+            });
+
+            var checkInputs = function (elements) {
+               
+                elements.each(function () {
+                    var element = $(this);
+                    var input = element.children("input");
+
+                    input.prop("checked", element.hasClass("k-state-selected"));
+                });
+            };
+
+            $("#ddlfacility").kendoMultiSelect({
+                dataValueField: "Facility_ID",
+                dataTextField: "Facility_Name",
+                dataSource: ds,
+                dataBound: function () {
+                    var items = this.ul.find("li");
+                    setTimeout(function () {
+                       checkInputs(items);
+                    });
+                },
+                itemTemplate: "<input type='checkbox' value='#:data.Facility_ID#'/> #:data.Facility_Name#",
+                headerTemplate: "<div><input type='checkbox' id='Header'><label> Select All</label></div>",
+                autoClose: false,
+                change: function () {
+                    var items = this.ul.find("li");
+                    debugger
+                    checkInputs(items);
+                }
+            });
+
+            $('#Header').click(function () {
+                if ($(this).is(':checked')) {
+                    $('#ddlfacility_listbox').find("li").each(function () {
+                        $(this).trigger("click");
+                        //$(this).find("input").prop("checked",true);
+                    });
+                } else {
+                    $('#ddlfacility_listbox').find("li").each(function () {
+                        $(this).trigger("click");
+                        //$(this).find("input").prop("checked", false);
+                    });
+                }
+            });
+
+            $('#containerDiv').keydown(function (e) {
+                $("#Header").attr("checked", false);
+            });
+
+        }
+    </script>
+
+    <script>
+        //$("#btnSave").kendoButton({
+        //    click: function (e) {
+        function save() {
+                debugger
+                if (confirm("Are you sure you want to Save this?")) {
+                    // console.log("hi");
+                    var facilityId = $("#ddlfacility").data("kendoMultiSelect").value();
+                    alert(facilityId)
+
+                    $.ajax({
+                        url: '/Default/InsertData', 
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            facilityId: facilityId
+                        },
+                        success: function (result) {
+                            var multiselect = $("#ddlfacility").data("kendoMultiSelect");
+                            multiselect.value(result)
+                            //val.setDataSource(result);
+
+                        },
+                        error: function () {
+                            alert('error');
+                        }
+                    });
+                }
+                else {
+                    return false;
+                }
+            }
+    </script>
+
+
+
+    <div id="example" role="application">
+        <div id="containerDiv"><div id="items"></div></div>
+        <h4 style="margin-top: 2em;">Pharmacy:</h4>
+        @(Html.Kendo().DropDownList()
+                                                 .Name("pharmacy")
+                                                 .Events(c => c.Select("onselect"))
+                                                 .HtmlAttributes(new { style = "width:30%" })
+                                                 .OptionLabel("Select Pharmacy...")
+                                                 .DataTextField("Pharmacy_Name")//value
+                                                 .DataValueField("Pharmacy_id")
+                                                     //   .Events(e => e.Change("onPharmacyChange"))
+                                                     .DataSource(source =>
+                                                     {
+                                                         source.Read(read =>
+                                                         {
+                                                             read.Action("GetPharmacyList", "Default");//action method & Controller
+                                                 });
+                                                     })
+
+        )
+    </div>
+   
+    <h4 style="margin-top: 2em;">Facility:</h4>         
+
+        @*<div id="containerDiv">
+            <div id="ddlfacility"></div>
+            @*<select id="ddlfacility" name="ddlfacility"></select>*@
+   
+    <select id="ddlfacility" multiple="multiple" data-placeholder="Select Facilities..."></select>
+    <div>
+        <div>
+            <button id="btnSave" type="button" onclick="save()"> Save </button>
+            <button id="btnEdit" type="button" onclick="edit()"> Edit </button>
+        </div>
+     </div>
+            @*multiple="multiple"*@
+            @*<div id="containerDiv"><div id="items"></div></div>*@
+    @*</div>*@
+      
+
